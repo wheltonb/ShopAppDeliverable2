@@ -1,8 +1,11 @@
+
+
+
 class User:
 
     # Constructor to initalise the model class needs these parameters
-    def __init__(self, firstName, lastName, userEmail, userPassword, isManager=None):
-
+    def __init__(self, userID, firstName, lastName, userEmail, userPassword, isManager=False):
+        self.userID = userID
         self.firstName = firstName
         self.lastName = lastName
         self.userEmail = userEmail

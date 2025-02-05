@@ -8,7 +8,7 @@ def initialize_database():
     # Create the products table if it doesn't already exist
     c.execute('''
     CREATE TABLE IF NOT EXISTS products (
-        productID INTEGER PRIMARY KEY,
+        productID INTEGER PRIMARY KEY AUTOINCREMENT,
         productName TEXT NOT NULL,
         price REAL NOT NULL,
         type TEXT,
@@ -29,7 +29,7 @@ def initialize_database():
     # Create the users table if it doesn't already exist
     c.execute('''
     CREATE TABLE IF NOT EXISTS users (
-        userID INTEGER PRIMARY KEY,
+        userID INTEGER PRIMARY KEY AUTOINCREMENT,
         firstName TEXT NOT NULL,
         lastName TEXT NOT NULL,
         userEmail TEXT NOT NULL,

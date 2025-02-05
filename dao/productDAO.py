@@ -14,7 +14,16 @@ class ProductDAO:
         ))
         self.conn.commit()
 
-    def read_product(self, productID):
+
+    def get_all_products(self):
+        sql = '''SELECT * FROM products '''
+        cursor = self.conn.execute(sql)
+        row = cursor.fetchone()
+        if row:
+            return Product(*row)
+        return None
+
+    def get_product_by_id(self, productID):
         sql = '''SELECT * FROM products WHERE productID = ?'''
         cursor = self.conn.execute(sql, (productID,))
         row = cursor.fetchone()

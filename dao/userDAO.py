@@ -1,28 +1,60 @@
 from models.User import User
 import sqlite3
 
-# class to hold all users in memory, using this instead of database
 class UserDAO:
+    def __init__(self, conn):
+        self.conn = conn
+        self.c = conn.cursor()
 
-    def __init__(self, user_list=None):
-        # Initialize user_list as an empty list if None is provided
-        self.user_list = user_list if user_list is not None else []
+    # Create a new user
+    def create_user(self, user):
+        query = '''
+        INSERT INTO users (firstName, lastName, userEmail, userPassword, isManager)
+        VALUES (?, ?, ?, ?, ?)
+        '''
+        self.c.execute(query, (user.firstName, user.lastName, user.userEmail, user.userPassword, user.isManager))
+        self.conn.commit()
+        user.userID = self.c.lastrowid  # Set the userID after insertion
+        return user
 
-    # This method grabs all users, and creates some if the list is empty
-    def getAllUsers(self):
-        if not self.user_list:  # Check if the list is empty
-            # Create default users if list is empty
-            user_manager = User("John", "Doe", "John@gmail.com", "123", True)
-            user_employee = User("Jane", "Doe", "Jane@gmail.com", "123", False)
-
-            self.user_list.append(user_manager)
-            self.user_list.append(user_employee)
-
-        return self.user_list
-
-    def getUserByEmail(self, email):
-        for user in self.user_list:
-            if user.userEmail == email:
-                return user
+    # Retrieve a user by userID
+    def get_user_by_id(self, userID):
+        query = 'SELECT * FROM users WHERE userID = ?'
+        self.c.execute(query, (userID,))
+        row = self.c.fetchone()
+        if row:
+            return User(userID=row[0], firstName=row[1], lastName=row[2], userEmail=row[3], userPassword=row[4], isManager=row[5])
         return None
-    # Add a new model to the list
+
+    # Retrieve all users
+    def get_all_users(self):
+        query = 'SELECT * FROM users'
+        self.c.execute(query)
+        rows = self.c.fetchall()
+        users = []
+        for row in rows:
+            user = User(userID=row[0], firstName=row[1], lastName=row[2], userEmail=row[3], userPassword=row[4], isManager=row[5])
+            users.append(user)
+        return users
+
+    # Update a user
+    def update_user(self, user):
+        query = '''
+        UPDATE users
+        SET firstName = ?, lastName = ?, userEmail = ?, userPassword = ?, isManager = ?
+        WHERE userID = ?
+        '''
+        self.c.execute(query, (user.firstName, user.lastName, user.userEmail, user.userPassword, user.isManager, user.userID))
+        self.conn.commit()
+        return user
+
+    # Delete a user by userID
+    def delete_user(self, userID):
+        query = 'DELETE FROM users WHERE userID = ?'
+        self.c.execute(query, (userID,))
+        self.conn.commit()
+        return userID
+
+    # Close the database connection (optional, but recommended)
+    def close(self):
+        self.conn.close()

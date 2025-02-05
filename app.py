@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from dao.productDAO import productDAO
+
+from dao import productDAO
+from dao.productDAO import ProductDAO
 from services.UserService import UserService
 
 # imports are needed to drag elements of the project from custom DAO and Service modules as well as access pre-built flask libraries
@@ -8,7 +10,7 @@ app = Flask(__name__)
 # secret key lets me create sessions to manage app-state
 app.secret_key = 'ProjectSecretKey'
 
-productDAO = productDAO()
+
 userService = UserService()
 
 
