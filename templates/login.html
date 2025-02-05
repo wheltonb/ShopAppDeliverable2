@@ -1,0 +1,38 @@
+<!-- Bootstrap template and corresponding code all sourced from project resource files uploaded to canvas-->
+<head>
+<link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet" />
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- links to CSS stylesheets for visualization and Javascript implement functionality-->
+</head>
+
+<body>
+<!-- layering blocks of divs in the body to allow for the targetted styling and construction of the login forms physical state -->
+    <div id="login">
+        <h3 class="text-center text-white pt-5">Login form</h3>
+        <div class="container">
+            <div id="login-row" class="row justify-content-center align-items-center">
+                <div id="login-column" class="col-md-6">
+                    <div id="login-box" class="col-md-12">
+                        <form id="login-form" class="form" action="/login" method="POST"> <!-- defines the action (POST) to be carried out on submit -->
+                            <h3 class="text-center text-info">Login</h3>
+                            <div class="form-group">
+                                <label for="email" class="text-info">Email:</label><br>
+                                <input type="text" name="emailField" id="emailField" class="form-control"> <!-- textbox alongside box label to read emailfield from for posting to app -->
+                            </div>
+                            <div class="form-group">
+                                <label for="password" class="text-info">Password:</label><br>
+                                <input type="password" name="passwordField" id="passwordField" class="form-control"> <!-- textbox alongside box label to read PasswordField from for posting to app, also sets entry type to allow for security on entry-->
+                            </div>
+                           <div id="login_button" class="text-right">
+    <button type="submit" class="btn btn-primary">Submit</button> <!-- creates a form submit button to allow users to POST entry to form-->
+</div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+

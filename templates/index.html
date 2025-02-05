@@ -1,0 +1,49 @@
+{% extends "base.html" %} <!-- Extends base HTML to pre-generate headers and footers and avoid excess code duplication-->
+
+{% block title %}Star Trek Collector Store: Browse{% endblock %} <!-- Title of page in tab bar -->
+
+{% block header %}
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Explore the Galaxy</h1>
+            <p class="lead fw-normal text-white-50 mb-0">with our Featured Products</p>
+        </div>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+<!-- in-template python logic to take products passed to template from code and render them with formatting done via inline code as well as external CSS-->
+            {% for product in products %}
+            <div class="col mb-5">
+                <div class="card h-100">
+                    <!-- Product image location, details, name taken from hard-coded product object -->
+                    <img class="card-img-top" src="{{ product.image_url }}" alt="{{ product.name }}" />
+                    <!-- Product details-->
+                    <div class="card-body p-4">
+                        <div class="text-center">
+                            <!-- Product name-->
+                            <h5 class="fw-bolder">{{ product.name }}</h5>
+                            <!-- Product description-->
+                            <p>{{ product.description }}</p>
+                            <!-- Product price-->
+                            ${{ product.price }}
+                        </div>
+                    </div>
+                    <!-- Product actions-->
+                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                        <div class="text-center">
+                    <a class="btn btn-outline-dark mt-auto" href="{{ url_for('show_details', productID=product.productID) }}">View Product</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

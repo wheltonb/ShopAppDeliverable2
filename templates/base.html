@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <title>Star Trek Collector Store: Browse</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.ico') }}" />
+        <!-- Bootstrap icons-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+        <!-- Core  CSS (includes Bootstrap)-->
+        <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet" />
+    </head>
+    <body>
+        <!-- Nav-bar for store page, allows users to navigate between Home, Products, Login and basket -->
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container px-4 px-lg-5">
+                <a class="navbar-brand" href="{{ url_for('homepage') }}">Star Trek Collector Store</a> <!--  -->
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <!-- Check if the user is logged in (session_user is not 'Guest') to display the logout dropdown -->
+                        {% if session['session_user'] != 'Guest' %}
+<!-- Logout/User Dropdown -->
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" id="userDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+{{ session['session_user'] }}    </a>
+    <ul class="dropdown-menu" aria-labelledby="userDropdown">
+        <li>
+            <form method="POST" action="{{ url_for('homepage') }}"> <!-- refreshes the homepage after returning a logout POST method to trigger logout logic in route-->
+
+                <button class="dropdown-item" type="submit" name="logout" >Logout</button>
+            </form>
+        </li>
+    </ul>
+</li>
+<!-- conditional block for displaying login button if session_user is anything other than != Guest (i.e., == Guest) -->
+ {% else %}
+<!-- Login Button (Visible if condition is true) -->
+            <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('login') }}">Login</a> <!-- inserts a login button in place of the logout dropdown -->
+            </li>
+{% endif %}
+<!-- dropdown in navbar the will allow to view product by category once phase 2 implementation is added-->
+            <li class="nav-item"><a class="nav-link {% if active_page == 'home' %}active{% endif %}" href="{{ url_for('homepage') }}">Home</a></li>
+            <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="{{ url_for('homepage') }}">All Products</a></li>
+            <li><hr class="dropdown-divider" /></li>
+                <!-- all extra links redirect to homepage for time being until implementation is added -->
+            <li><a class="dropdown-item" href="{{ url_for('homepage') }}">Posters</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('homepage') }}">Figurines</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('homepage') }}">Replicas</a></li>
+
+            </ul>
+            </li>
+            </ul>
+                    <form class="d-flex" method="POST">
+
+            <button class="btn btn-outline-dark" type="submit" name="show_cart">
+            <i class="bi-cart-fill me-1"></i>
+            Cart
+            <span class="badge bg-dark text-white ms-1 rounded-pill"> {{ cart_len }}</span>
+            </button>
+            </form>
+            </div>
+            </div>
+        </nav>
+
+        <!-- Header-->
+        <header class="bg-dark py-5">
+            <div class="container px-4 px-lg-5 my-5">
+                <div class="text-center text-white">
+                    <h1 class="display-4 fw-bolder">Explore the Galaxy</h1>
+                    <p class="lead fw-normal text-white-50 mb-0">with our Featured Products</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content-->
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
+
+        <!-- Footer-->
+        <footer class="py-5 bg-dark">
+            <div class="container">
+                <p class="m-0 text-center text-white">Copyright &copy; StarTrek FanShop</p>
+            </div>
+        </footer>
+
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    </body>
+</html>
