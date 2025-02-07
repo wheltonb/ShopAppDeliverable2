@@ -1,7 +1,8 @@
 from models.Product import Product
 import sqlite3
 class ProductDAO:
-    def __init__(self, db_file):
+    def __init__(self):
+        db_file = 'shop.db'
         self.conn = sqlite3.connect(db_file)
 
     def create_product(self, product):
@@ -13,14 +14,15 @@ class ProductDAO:
             product.scale, product.isLimited, product.description, product.image_blob
         ))
         self.conn.commit()
-
+        self.conn.close()
 
     def get_all_products(self):
         sql = '''SELECT * FROM products '''
         cursor = self.conn.execute(sql)
-        row = cursor.fetchone()
+        row = cursor.fetchall()
         if row:
             return Product(*row)
+        self.conn.close()
         return None
 
     def get_product_by_id(self, productID):
@@ -29,6 +31,7 @@ class ProductDAO:
         row = cursor.fetchone()
         if row:
             return Product(*row)
+        self.conn.close()
         return None
 
     def update_product(self, product):
@@ -41,10 +44,16 @@ class ProductDAO:
             product.scale, product.isLimited, product.description, product.image_blob, product.productID
         ))
         self.conn.commit()
+        self.conn.close()
 
     def delete_product(self, productID):
         sql = '''DELETE FROM products WHERE productID = ?'''
         self.conn.execute(sql, (productID,))
         self.conn.commit()
+        self.conn.close()
 
-
+    def get_products_by_type(self, type):
+        sql = '''SELECT * FROM products WHERE type = ?'''
+        self.conn.execute(sql, (type,))
+        self.conn.commit()
+        self.conn.close()

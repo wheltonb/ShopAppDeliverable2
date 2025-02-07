@@ -1,60 +1,56 @@
 from models.User import User
 import sqlite3
-
 class UserDAO:
-    def __init__(self, conn):
-        self.conn = conn
-        self.c = conn.cursor()
+    def __init__(self):
+        db_file = 'shop.db'
+        self.conn = sqlite3.connect(db_file)
 
     # Create a new user
     def create_user(self, user):
-        query = '''
+        sql = '''
         INSERT INTO users (firstName, lastName, userEmail, userPassword, isManager)
         VALUES (?, ?, ?, ?, ?)
         '''
-        self.c.execute(query, (user.firstName, user.lastName, user.userEmail, user.userPassword, user.isManager))
+        self.conn.execute(sql, (user.firstName, user.lastName, user.userEmail, user.userPassword, user.isManager))
         self.conn.commit()
-        user.userID = self.c.lastrowid  # Set the userID after insertion
+        self.conn.close()
         return user
 
     # Retrieve a user by userID
     def get_user_by_id(self, userID):
-        query = 'SELECT * FROM users WHERE userID = ?'
-        self.c.execute(query, (userID,))
-        row = self.c.fetchone()
+        sql = 'SELECT * FROM users WHERE userID = ?'
+        cursor = self.conn.execute(sql, (userID,))
+        row = cursor.fetchone()
         if row:
             return User(userID=row[0], firstName=row[1], lastName=row[2], userEmail=row[3], userPassword=row[4], isManager=row[5])
+        self.conn.close()
         return None
 
     # Retrieve all users
     def get_all_users(self):
-        query = 'SELECT * FROM users'
-        self.c.execute(query)
-        rows = self.c.fetchall()
-        users = []
-        for row in rows:
-            user = User(userID=row[0], firstName=row[1], lastName=row[2], userEmail=row[3], userPassword=row[4], isManager=row[5])
-            users.append(user)
-        return users
+        sql = 'SELECT * FROM users'
+        cursor = self.conn.execute(sql)
+        row = cursor.fetchall()
+        if row:
+            return User(*row)
+        self.conn.close()
+        return None
 
     # Update a user
     def update_user(self, user):
-        query = '''
+        sql = '''
         UPDATE users
         SET firstName = ?, lastName = ?, userEmail = ?, userPassword = ?, isManager = ?
         WHERE userID = ?
         '''
-        self.c.execute(query, (user.firstName, user.lastName, user.userEmail, user.userPassword, user.isManager, user.userID))
+        self.conn.execute(sql, (user.firstName, user.lastName, user.userEmail, user.userPassword, user.isManager, user.userID))
         self.conn.commit()
-        return user
+        self.conn.close()
+
 
     # Delete a user by userID
     def delete_user(self, userID):
-        query = 'DELETE FROM users WHERE userID = ?'
-        self.c.execute(query, (userID,))
+        sql = 'DELETE FROM users WHERE userID = ?'
+        self.conn.execute(sql, (userID,))
         self.conn.commit()
-        return userID
-
-    # Close the database connection (optional, but recommended)
-    def close(self):
         self.conn.close()

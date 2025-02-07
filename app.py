@@ -1,7 +1,7 @@
+import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-
 from dao import productDAO
-from dao.productDAO import ProductDAO
+from services.ProductService import ProductService
 from services.UserService import UserService
 
 # imports are needed to drag elements of the project from custom DAO and Service modules as well as access pre-built flask libraries
@@ -10,12 +10,13 @@ app = Flask(__name__)
 # secret key lets me create sessions to manage app-state
 app.secret_key = 'ProjectSecretKey'
 
+def connect_db(conn):
+    conn = sqlite3.connect('shop.db')
 
-userService = UserService()
-
+ProductService = ProductService()
+UserService = UserService()
 
 # initializing an instance of productDAO and UserService allows app to access the functions stored in those classes
-
 
 # home route to serve as site homepage and allow for product viewing or login
 @app.route('/', methods=['GET', 'POST'])
@@ -41,7 +42,7 @@ def homepage():
 
     # if page renders as GET creates an empty cart and renders all products for display
     session.setdefault('cart', [])
-    products = productDAO.getAllProducts()  # accesses ProductDAO to grab all instances of the Product class
+    products = ProductService.get_all_products()
     cart = session.get('cart', [])
     cart_len = len(cart)  # length check of cart object for basket icon count
     return render_template('index.html', products=products, cart_len=cart_len)
