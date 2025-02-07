@@ -20,10 +20,12 @@ class ProductDAO:
         sql = '''SELECT * FROM products '''
         cursor = self.conn.execute(sql)
         row = cursor.fetchall()
+        products = []
         if row:
-            return Product(*row)
-        self.conn.close()
-        return None
+            for row in row:
+                product = Product(*row)  # Assuming the Product constructor takes the values in the row
+                products.append(product)
+        return products
 
     def get_product_by_id(self, productID):
         sql = '''SELECT * FROM products WHERE productID = ?'''

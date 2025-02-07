@@ -1,6 +1,6 @@
 import sqlite3
+import base64
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from dao import productDAO
 from services.ProductService import ProductService
 from services.UserService import UserService
 
@@ -10,13 +10,6 @@ app = Flask(__name__)
 # secret key lets me create sessions to manage app-state
 app.secret_key = 'ProjectSecretKey'
 
-def connect_db(conn):
-    conn = sqlite3.connect('shop.db')
-
-ProductService = ProductService()
-UserService = UserService()
-
-# initializing an instance of productDAO and UserService allows app to access the functions stored in those classes
 
 # home route to serve as site homepage and allow for product viewing or login
 @app.route('/', methods=['GET', 'POST'])
@@ -33,16 +26,26 @@ def homepage():
 
         if 'show_cart' in request.form:
             if session['session_user'] == 'Guest':
-                return redirect(url_for('login'))
+                #return redirect(url_for('login'))
+                pass
             else:
-                return redirect(url_for('show_cart'))
+                pass
+                #return redirect(url_for('show_cart'))
 
     if session['session_user'] == 'Admin':  # checks for session_user type Admin and redirects to dashboard
-        return redirect(url_for('admin_page'))
+        pass
+        #return redirect(url_for('admin_page'))
 
     # if page renders as GET creates an empty cart and renders all products for display
+    productService = ProductService()
+    products = productService.get_all_products()
+    for product in products:
+        # If the product has an image BLOB, convert it to base64
+        if product.image_blob:
+            product.image = base64.b64encode(product.image_blob).decode('utf-8')
+        else:
+            product.image = None  # Handle case with no image
     session.setdefault('cart', [])
-    products = ProductService.get_all_products()
     cart = session.get('cart', [])
     cart_len = len(cart)  # length check of cart object for basket icon count
     return render_template('index.html', products=products, cart_len=cart_len)
@@ -69,34 +72,44 @@ def show_details(productID):
             if session['session_user'] == 'Guest':  # prevents guests from checking out
                 return redirect(url_for('login'))
             else:
-                # conditional test where if users are signed in, retrieve data from page
-                products = productDAO.getProductById(productID)
+                # retrieving product details
+                product = ProductService.get_product_by_id(productID)
                 productID = request.form['productID']
                 productName = request.form['productName']
                 price = request.form['price']
                 quantity = request.form['quantity']
                 cart = session['cart']
-                for item in cart:  # needed to iterate through cart to ensure entries don't overwrite pre-existing
-                    # cart item
+                for item in cart:
                     if item['productID'] == productID:
                         item['quantity'] += quantity  # increments quantity if already in cart
                         break
-                else:  # if item not in cart appends the product details as dictionary entries before redirecting to
-                    # cart page
+                else:
                     cart.append({'productID': productID,
                                  'productName': productName,
                                  'price': price,
                                  'quantity': quantity,
-                                 'image_url': products.image_url,
-                                 'description': products.description
+                                 'image': product.image,  # Ensure correct attribute usage
+                                 'description': product.description
                                  })
                 session.modified = True
                 return redirect(url_for('homepage'))
 
-    products = productDAO.getProductById(productID)
+    # Fetch product details
+    productService = ProductService()
+    product = productService.get_product_by_id(productID)
+
+    # Convert image BLOB to regular image
+    if product.image_blob:
+        product.image = base64.b64encode(product.image_blob).decode('utf-8')
+    else:
+        product.image = None
+
+    # Fetch cart details
     cart = session.get('cart', [])
     cart_len = len(cart)
-    return render_template('product_details.html', products=products, cart_len=cart_len)
+
+    return render_template('product_details.html', product=product, cart_len=cart_len)  # Pass single product to template
+
 
 
 # login route to handle HTML form data and alter the User session
@@ -108,11 +121,11 @@ def login():
         email = request.form.get('emailField')
         password = request.form.get('passwordField')
 
-        userToLogin = userService.verifyUser(email, password)  # uses the form submissions as arguments in User
+        userToLogin = UserService.verify_user(email, password)  # uses the form submissions as arguments in User
         # Service authentication function
 
         if userToLogin:
-            products = productDAO.getAllProducts()  # returns product list to pass to index for rendering on
+            products = ProductService.get_all_products()  # returns product list to pass to index for rendering on
             # successful login
 
             if userToLogin.isManager:  # checks logged-in User against objects isManager status and sets session

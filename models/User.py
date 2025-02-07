@@ -1,6 +1,3 @@
-
-
-
 class User:
 
     # Constructor to initalise the model class needs these parameters

@@ -4,6 +4,7 @@ class UserDAO:
     def __init__(self):
         db_file = 'shop.db'
         self.conn = sqlite3.connect(db_file)
+        self.cursor = self.conn.cursor()
 
     # Create a new user
     def create_user(self, user):
