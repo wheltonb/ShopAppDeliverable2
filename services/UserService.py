@@ -7,11 +7,13 @@ class UserService:
         self.userDAO = UserDAO()
 
     def verify_user(self, email, password):
-        users = self.userDAO.get_all_users()
-        for user in users:
-            if user.userEmail == email and user.userPassword == password:
-                return user
-        return None
+        user = self.userDAO.verify_user(email, password)  # Calls userDAO
+        if user is not None:
+            print(f"User found: {user.userEmail}")
+            return user
+        else:
+            print("No matching user found")
+            return None  # Return None if no matching user is found
 
     def create_user(self, user):
         return self.userDAO.create_user(user)

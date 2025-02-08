@@ -6,6 +6,25 @@ class UserDAO:
         self.conn = sqlite3.connect(db_file)
         self.cursor = self.conn.cursor()
 
+    def verify_user(self, email, password):
+        print(f"Querying for Email: {email}, Password: {password}") # debug statement for query data
+        cursor = self.conn.cursor()
+        # Modify the query to fetch a user by email and password
+        sql = "SELECT * FROM users WHERE userEmail = ? AND userPassword = ?"
+        cursor.execute(sql, (email, password))
+        row = cursor.fetchone()  # Fetch one user matching the email and password
+        if row:
+            print(f"User found in database: {row}")
+            self.conn.close()
+            return User(userID=row[0], firstName=row[1], lastName=row[2], userEmail=row[3], userPassword=row[4], isManager=row[5])
+
+        else:
+            print("No matching user found in database")
+            self.conn.close()
+            return None
+
+
+
     # Create a new user
     def create_user(self, user):
         sql = '''

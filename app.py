@@ -120,14 +120,11 @@ def login():
         # assigns email and password from form entry to variable for authentication
         email = request.form.get('emailField')
         password = request.form.get('passwordField')
-
-        userToLogin = UserService.verify_user(email, password)  # uses the form submissions as arguments in User
+        userService = UserService()
+        userToLogin = userService.verify_user(email, password)  # uses the form submissions as arguments in User
         # Service authentication function
 
         if userToLogin:
-            products = ProductService.get_all_products()  # returns product list to pass to index for rendering on
-            # successful login
-
             if userToLogin.isManager:  # checks logged-in User against objects isManager status and sets session
                 # accordingly to ensure redirect to admin dashboard
                 session['session_user'] = "Admin"  # changes session state to reflect user type
@@ -143,6 +140,7 @@ def login():
                 return redirect(url_for("homepage"))  # passes product to index to allow product spread to render
 
         else:  # on login failure re-render the login page
+            print("Invalid login attempt: User not found or incorrect credentials")
             return render_template("login.html")
 
     return render_template("login.html")
