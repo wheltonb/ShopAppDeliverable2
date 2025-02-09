@@ -27,10 +27,10 @@ def inject_sample_products():
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (*product[:13], img_blob))  # product[:13] gives you the first 13 values
 
-        except FileNotFoundError:
-            print(f"Error: File {product[13]} not found.")
+        except FileNotFoundError: # debugging statement for file not found error
+            print(f"Error:  {product[13]} not found.")
 
-    conn.commit()  # Commit the transaction
+    conn.commit()  # commit injection + print debugging statement
     print("Sample product data injected successfully.")
 
 
@@ -47,7 +47,7 @@ def inject_sample_users():
                 VALUES (?, ?, ?, ?, ?)
             ''', user)
 
-    conn.commit()
+    conn.commit() # debugging user injection statement
     print("Sample user data injected successfully.")
 
 inject_sample_products()

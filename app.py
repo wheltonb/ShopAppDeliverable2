@@ -1,4 +1,3 @@
-import sqlite3
 import base64
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from services.ProductService import ProductService
@@ -29,12 +28,10 @@ def homepage():
                 #return redirect(url_for('login'))
                 pass
             else:
-                pass
-                #return redirect(url_for('show_cart'))
+                return redirect(url_for('show_cart'))
 
     if session['session_user'] == 'Admin':  # checks for session_user type Admin and redirects to dashboard
-        pass
-        #return redirect(url_for('admin_page'))
+        return redirect(url_for('admin_page'))
 
     # if page renders as GET creates an empty cart and renders all products for display
     productService = ProductService()
@@ -73,25 +70,29 @@ def show_details(productID):
                 return redirect(url_for('login'))
             else:
                 # retrieving product details
-                product = ProductService.get_product_by_id(productID)
+                productService = ProductService()
+                product = productService.get_product_by_id(productID)
                 productID = request.form['productID']
                 productName = request.form['productName']
                 price = request.form['price']
                 quantity = request.form['quantity']
                 cart = session['cart']
+
                 for item in cart:
                     if item['productID'] == productID:
                         item['quantity'] += quantity  # increments quantity if already in cart
-                        break
+                        session.modified = True
+                        return redirect(url_for('homepage'))
+
                 else:
                     cart.append({'productID': productID,
                                  'productName': productName,
                                  'price': price,
                                  'quantity': quantity,
-                                 'image': product.image,  # Ensure correct attribute usage
                                  'description': product.description
                                  })
-                session.modified = True
+                    session.modified = True
+
                 return redirect(url_for('homepage'))
 
     # Fetch product details
@@ -195,6 +196,8 @@ def show_cart():
                     product['quantity'] += 1
                     session.modified = True
                     return redirect(url_for('show_cart'))
+
+    productService = ProductService()
     # creates variable using content of session cart
     cart = session.get('cart', [])
     cart_len = len(cart)
@@ -205,9 +208,18 @@ def show_cart():
         cart_quant += int(item['quantity'])
     # calculation to obtain total basket cost
     cart_cost = 0
+
     for item in cart:
+        # need to retrieve the image blob from DB based on cart product ID's
+        productID = item['productID']
+        product = productService.get_product_by_id(productID)  # Retrieve the full product details
+    # convert
+        if product and product.image_blob:
+            item['image'] = base64.b64encode(product.image_blob).decode('utf-8')  # Convert image_blob to base64 string
+        else:
+            item['image'] = None
         item_quant = int(item['quantity'])
-        item_cost = int(item['price'])
+        item_cost = float(item['price'])
         total_cost_per_item = item_cost * item_quant
         cart_cost += total_cost_per_item
     return render_template('cart.html', cart=cart, cart_len=cart_len, cart_cost=cart_cost, cart_quant=cart_quant)
