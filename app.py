@@ -158,6 +158,13 @@ def admin_page():
             session.modified = True
             return redirect(url_for('homepage'))
 
+        if 'product_manager' in request.form:
+            return redirect(url_for('product_manager_page'))
+
+
+        if 'user_manager' in request.form:
+            return redirect(url_for('user_manager_page'))
+
     return render_template('admin.html')
 
 
@@ -223,6 +230,28 @@ def show_cart():
         total_cost_per_item = item_cost * item_quant
         cart_cost += total_cost_per_item
     return render_template('cart.html', cart=cart, cart_len=cart_len, cart_cost=cart_cost, cart_quant=cart_quant)
+
+
+@app.route('/manage_users', methods=['GET', 'POST'])
+def user_management():
+    if request.method == 'POST':
+        pass
+    else:
+        userService = UserService()
+        users = userService.get_all_users()
+        return render_template('user_management.html', users=users)
+
+
+
+
+@app.route('/manage_products', methods=['GET', 'POST'])
+def product_management():
+    if request.method == 'POST':
+        pass
+    else:
+        productService = ProductService()
+        products = productService.get_all_products()
+        return render_template('product_management.html', products=products)
 
 
 if __name__ == '__main__':

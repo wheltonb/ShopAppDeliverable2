@@ -50,8 +50,11 @@ class UserDAO:
         sql = 'SELECT * FROM users'
         self.cursor.execute(sql)
         row = self.cursor.fetchall()
+        users = []
         if row:
-            return User(*row)
+            for row in row:
+                user = User(*row)
+                users.append(user)
         self.conn.close()
         return None
 
