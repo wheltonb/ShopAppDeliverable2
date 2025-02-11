@@ -1,0 +1,60 @@
+<!-- Bootstrap template and corresponding code all sourced from project resource files uploaded to canvas-->
+<head>
+<link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet" />
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- links to CSS stylesheets for visualization and Javascript implement functionality-->
+</head>
+    <!-- snippet -->
+<body>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    <!-- messages stores all flashes, if they exist flash them with alert type being set based on the flashes provided category-->
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} text-center">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <!-- form to handle registration args -->
+    <div id="registration">
+        <h3 class="text-center text-white pt-5">Registration Form</h3>
+        <div class="container">
+            <div id="registration-row" class="row justify-content-center align-items-center">
+                <div id="registration-column" class="col-md-6">
+                    <div id="registration-box" class="col-md-12">
+                        <form id="registration-form" class="form" action="/register" method="POST">
+                            <h3 class="text-center text-info">Register</h3>
+                            <div class="form-group">
+                                <label for="firstName" class="text-info">First Name:</label><br>
+                                <input type="text" name="firstName" id="firstName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName" class="text-info">Last Name:</label><br>
+                                <input type="text" name="lastName" id="lastName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="text-info">Email:</label><br>
+                                <input type="email" name="emailField" id="emailField" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password" class="text-info">Password:</label><br>
+                                <input type="password" name="passwordField" id="passwordField" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm-password" class="text-info">Confirm Password:</label><br>
+                                <input type="password" name="confirmPasswordField" id="confirmPasswordField" class="form-control" required>
+                            </div>
+                            <div id="registration_button" class="text-right">
+                                <button type="submit" class="btn btn-primary">Register</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>

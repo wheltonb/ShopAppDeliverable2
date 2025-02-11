@@ -1,8 +1,11 @@
 import base64
+import requests
 from models.Product import Product
+from models.User import User
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from services.ProductService import ProductService
 from services.UserService import UserService
+
 
 # imports are needed to drag elements of the project from custom DAO and Service modules as well as access pre-built flask libraries
 app = Flask(__name__)
@@ -47,6 +50,42 @@ def homepage():
     cart = session.get('cart', [])
     cart_len = len(cart)  # length check of cart object for basket icon count
     return render_template('index.html', products=products, cart_len=cart_len)
+
+@app.route('/categories/<string:product_type>', methods=['GET', 'POST'])
+def product_types(product_type):
+    if 'session_user' not in session:  # used to check for and create a session user so app can track sign-in state and user type
+        session['session_user'] = 'Guest'  # defaults user state to guest
+
+    if request.method == 'POST':  # checks any POST methods for if its a logout and reloads the page with session_user as Guest
+        if 'logout' in request.form:
+            session.pop('cart')
+            session['session_user'] = 'Guest'
+            session.modified = True  # probably the single most instrumental line, is reused multiple times in code to save any changes made to sessions to ensure that data persists (was used in add_product func to ensure append was saved and carried over to checkout
+            return redirect(url_for('homepage'))
+
+        if 'show_cart' in request.form:
+            if session['session_user'] == 'Guest':
+                #return redirect(url_for('login'))
+                pass
+            else:
+                return redirect(url_for('show_cart'))
+
+    # if page renders as GET creates an empty cart and renders all products for display
+    productService = ProductService()
+    products = productService.get_product_by_type(product_type)
+    for product in products:
+        # If the product has an image BLOB, convert it to base64
+        if product.image_blob:
+            product.image = base64.b64encode(product.image_blob).decode('utf-8')
+        else:
+            product.image = None  # Handle case with no image
+    session.setdefault('cart', [])
+    cart = session.get('cart', [])
+    cart_len = len(cart)  # length check of cart object for basket icon count
+    return render_template('index_by_type.html', products=products, cart_len=cart_len)
+
+
+
 
 
 @app.route('/product/<int:productID>', methods=['GET', 'POST'])
@@ -141,10 +180,45 @@ def login():
                 return redirect(url_for("homepage"))  # passes product to index to allow product spread to render
 
         else:  # on login failure re-render the login page
-            print("Invalid login attempt: User not found or incorrect credentials")
             return render_template("login.html")
 
     return render_template("login.html")
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    userService = UserService()
+    if request.method == 'POST':
+        # same issue as in products, for some reason have to initialise directly a model object so I have to manually instansiate an ID
+        count = len(userService.get_all_users())
+        firstName = request.form.get('firstName')
+        lastName = request.form.get('lastName')
+        email = request.form['emailField']
+        password = request.form['passwordField']
+        confirm_password = request.form['confirmPasswordField']
+        isManager = False
+        #
+        if password != confirm_password:
+           flash("Passwords don't match", "danger")
+           return render_template("register.html")
+        # conditional to see if that email is already registered to an account
+        if userService.get_user_by_email(email):
+            flash("Email already registered", "danger")
+            return render_template("register.html")
+
+        args = {
+            'userID': count,
+            'firstName': firstName,
+            'lastName': lastName,
+            'userEmail': email,
+            'userPassword': password,
+            'isManager': isManager
+        }
+        user = User(**args)
+        userService.create_user(user)
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
 
 
 # admin route to interact with manager tools / display infographics
@@ -175,8 +249,6 @@ def show_cart():
         if 'checkout' in request.form:  # on receiving POST from checkout button cart must be reset and users are brought to homepage
             session.pop('cart')
             session.modified = True
-            flash("Order Placed",
-                  category="success")  # wanted to integrate so display message but could not get working in time
             return redirect(url_for('homepage'))
 
         # conditional blocks detecting if the increment cart item operations are triggered by button press both conditions
@@ -371,10 +443,12 @@ def manage_product(productID):
         product.image = None
     return render_template('manage_product.html', product=product)
 
-
+# route to handle product creation
 @app.route('/create_product', methods=['GET', 'POST'])
 def product_creation():
+    #instansiate product service module
     productService = ProductService()
+    # for some reason I cant create without manually assigning an ID so I just calculate what auto-increment should be??
     count = len(productService.get_all_products())
     if request.method == 'POST':
         if "create_product" in request.form:
@@ -382,7 +456,7 @@ def product_creation():
             image = request.files.get('image')
             image_blob = image.read()
             productID = count + 1
-            # Retrieve product attributes from the form
+            # Retrieve product attributes from the form and set to none based on type
             if request.form.get('productType') == 'poster':
                 product_data = {
                 "productID": productID,
@@ -448,6 +522,15 @@ def product_creation():
     return render_template("create_product.html")
 
 
+@app.route('/get_api', methods=['GET'])
+def get_api():
+    response = requests.get('https://catfact.ninja/fact')
+    if response.status_code == 200:
+        data = response.json()
+        return render_template('api_page.html', fact=data['fact'])
+    else:
+        flash("Error retrieving a daily cat fact", "danger")
+        return render_template('api_page.html', fact=None)
 if __name__ == '__main__':
     app.run()
 

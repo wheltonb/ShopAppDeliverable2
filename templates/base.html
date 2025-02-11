@@ -45,15 +45,17 @@
 {% endif %}
 <!-- dropdown in navbar the will allow to view product by category once phase 2 implementation is added-->
             <li class="nav-item"><a class="nav-link {% if active_page == 'home' %}active{% endif %}" href="{{ url_for('homepage') }}">Home</a></li>
+            <li class="nav-item"><a class="nav-link {% if active_page == 'home' %}active{% endif %}" href="{{ url_for('get_api') }}">Get a cat fact here</a></li>
+
             <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
             <li><a class="dropdown-item" href="{{ url_for('homepage') }}">All Products</a></li>
             <li><hr class="dropdown-divider" /></li>
                 <!-- all extra links redirect to homepage for time being until implementation is added -->
-            <li><a class="dropdown-item" href="{{ url_for('homepage') }}">Posters</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('homepage') }}">Figurines</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('homepage') }}">Replicas</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('product_types', product_type = 'poster') }}">Posters</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('product_types', product_type = 'figurine') }}">Figurines</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('product_types', product_type = 'replica') }}">Replicas </a></li>
 
             </ul>
             </li>

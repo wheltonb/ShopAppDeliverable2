@@ -84,18 +84,18 @@
             <div class="col-md-6">
                 <h1 class="display-5 fw-bolder">{{ product.productName }}</h1>
                 <div class="fs-5 mb-5">
-                    {% if product.gender is not none %} Gender: {{ product.gender }} {% endif %} </br>
-                    {% if product.movable is not none %} movable: {{ product.movable }} {% endif %} </br>
-                    {% if product.isMirror is not none %} mirrorverse character: {{ product.isMirror }} {% endif %} </br>
-                    {% if product.character is not none %} Character: {{ product.character }} {% endif %} </br>
+                    {% if product.gender is not none %} Gender: {{ product.gender }} {% endif %} <br>
+                    {% if product.movable is not none %} movable: {{ product.movable }} {% endif %} <br>
+                    {% if product.isMirror is not none %} mirrorverse character: {{ product.isMirror }} {% endif %} <br>
+                    {% if product.character is not none %} Character: {{ product.character }} {% endif %} <br>
                     {% if product.hasColour is not none %}
                         Colour: {% if product.hasColour %} Has Colour {% else %} Black & White {% endif %} <br>
                     {% endif %}
 
-                    {% if product.dimensions is not none %} Poster Dimensions: {{ product.dimensions }} {% endif %} </br>
-                    {% if product.material is not none %} Material: {{ product.material }} {% endif %} </br>
-                    {% if product.scale is not none %} Scale: {{ product.scale }} {% endif %} </br>
-                    {% if product.isLimited is not none %} Limited edition: {{ product.isLimited }} {% endif %} </br>
+                    {% if product.dimensions is not none %} Poster Dimensions: {{ product.dimensions }} {% endif %} <br>
+                    {% if product.material is not none %} Material: {{ product.material }} {% endif %} <br>
+                    {% if product.scale is not none %} Scale: {{ product.scale }} {% endif %} <br>
+                    {% if product.isLimited is not none %} Limited edition: {{ product.isLimited }} {% endif %} <br>
 
                     <span>Price: ${{ product.price }}</span>
                 </div>

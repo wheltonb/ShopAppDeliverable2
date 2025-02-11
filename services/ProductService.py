@@ -10,6 +10,8 @@ class ProductService:
         print("Product Created")
         return self.productDAO.create_product(product)
 
+
+
     def delete_product(self, productID):
         self.productDAO.delete_product(productID)
 

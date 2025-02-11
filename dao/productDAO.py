@@ -16,6 +16,7 @@ class ProductDAO:
         self.conn.commit()
         self.conn.close()
 
+
     def get_all_products(self):
         sql = '''SELECT * FROM products '''
         cursor = self.conn.execute(sql)
@@ -56,7 +57,14 @@ class ProductDAO:
 
     def get_products_by_type(self, type):
         sql = '''SELECT * FROM products WHERE type = ?'''
-        self.conn.execute(sql, (type,))
+        cursor = self.conn.execute(sql, (type,))
+        row = cursor.fetchall()
+        products = []
+        if row:
+            for row in row:
+                product = Product(*row)  # Assuming the Product constructor takes the values in the row
+                products.append(product)
+        return products
         self.conn.commit()
         self.conn.close()
 

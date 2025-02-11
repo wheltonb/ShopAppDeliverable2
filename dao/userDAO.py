@@ -4,59 +4,58 @@ class UserDAO:
     def __init__(self):
         db_file = 'shop.db'
         self.conn = sqlite3.connect(db_file)
-        self.cursor = self.conn.cursor()
 
     def verify_user(self, email, password):
-        print(f"Querying for Email: {email}, Password: {password}") # debug statement for query data
-        # Modify the query to fetch a user by email and password
-        sql = "SELECT * FROM users WHERE userEmail = ? AND userPassword = ?"
-        self.cursor.execute(sql, (email, password))
-        row = self.cursor.fetchone()  # Fetch one user matching the email and password
+        sql = '''SELECT * FROM users WHERE userEmail = ? AND userPassword = ?'''
+        cursor = self.conn.execute(sql, (email, password))
+        row = cursor.fetchone()
         if row:
-            print(f"User found in database: {row}")
-            self.conn.close()
             return User(userID=row[0], firstName=row[1], lastName=row[2], userEmail=row[3], userPassword=row[4], isManager=row[5])
-
-        else:
-            print("No matching user found in database")
-            self.conn.close()
-            return None
-
-
+        self.conn.close()
+        return None
 
     # Create a new user
     def create_user(self, user):
-        sql = '''
-        INSERT INTO users (firstName, lastName, userEmail, userPassword, isManager)
-        VALUES (?, ?, ?, ?, ?)
-        '''
-        self.cursor.execute(sql, (user.firstName, user.lastName, user.userEmail, user.userPassword, user.isManager))
+        sql = '''INSERT INTO users (firstName, lastName, userEmail, userPassword, isManager)
+                 VALUES (?, ?, ?, ?, ?)'''
+        self.conn.execute(sql, (user.firstName,user.lastName,user.userEmail,user.userPassword,user.isManager))
         self.conn.commit()
         self.conn.close()
-        return user
+
+
 
     # Retrieve a user by userID
     def get_user_by_id(self, userID):
         sql = 'SELECT * FROM users WHERE userID = ?'
-        self.cursor.execute(sql, (userID,))
-        row = self.cursor.fetchone()
+        cursor = self.conn.execute(sql, (userID,))
+        row = cursor.fetchone()
         if row:
             return User(userID=row[0], firstName=row[1], lastName=row[2], userEmail=row[3], userPassword=row[4], isManager=row[5])
         self.conn.close()
         return None
 
-    # Retrieve all users
+    def get_user_by_email(self, email):
+        sql = 'SELECT * FROM users WHERE userEmail = ?'
+        cursor = self.conn.execute(sql, (email,))
+        row = cursor.fetchone()
+        if row:
+            return User(userID=row[0], firstName=row[1], lastName=row[2], userEmail=row[3], userPassword=row[4], isManager=row[5])
+        return None
+
+
+
     def get_all_users(self):
-        sql = 'SELECT * FROM users'
-        self.cursor.execute(sql)
-        row = self.cursor.fetchall()
+        sql = '''SELECT * FROM users '''
+        cursor = self.conn.execute(sql)
+        row = cursor.fetchall()
         users = []
         if row:
             for row in row:
-                user = User(*row)
+                user = User(*row)  # Assuming the Product constructor takes the values in the row
                 users.append(user)
-        self.conn.close()
-        return None
+        return users
+
+
 
     # Update a user
     def update_user(self, user):

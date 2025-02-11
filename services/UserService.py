@@ -30,5 +30,8 @@ class UserService:
     def delete_user(self, userID):
         return self.userDAO.delete_user(userID)
 
+    def get_user_by_email(self, email):
+        return self.userDAO.get_user_by_email(email)
+
 
 
