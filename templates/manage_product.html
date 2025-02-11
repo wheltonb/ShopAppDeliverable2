@@ -114,34 +114,119 @@
             </div>
             <div id="layoutSidenav_content">
 
-                <main>
 
+    <div class="container mt-5">
+        <h2>Update or Delete Product</h2>
+        <!-- Separate Form for Product Type (Radio Buttons) -->
+        <form method="POST" name='edit' action="{{ url_for('manage_product', productID=product.productID) }}">
+            <div class="form-group mb-3">
+                <label>Product Type</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="productType" id="poster" value="poster" {% if product.type == 'poster' %} checked {% endif %} onchange="this.form.submit()">
+                    <label class="form-check-label" for="poster">Poster</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="productType" id="replica" value="replica" {% if product.type == 'replica' %} checked {% endif %} onchange="this.form.submit()">
+                    <label class="form-check-label" for="replica">Replica</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="productType" id="figurine" value="figurine" {% if product.type == 'figurine' %} checked {% endif %} onchange="this.form.submit()">
+                    <label class="form-check-label" for="figurine">Figurine</label>
+                </div>
+            </div>
+        </form>
 
+        <!-- Main Product Details Form (Other Inputs) -->
+        <form method="POST" name="save" action="{{ url_for('manage_product', productID=product.productID) }}" enctype="multipart/form-data">
+            <!-- Product Name -->
+            <div class="form-group mb-3">
+                <label for="productName">Product Name</label>
+                <input type="text" class="form-control" id="productName" name="productName" value="{{ product.productName }}" required>
+            </div>
+            <!-- Product Price -->
+            <div class="form-group mb-3">
+                <label for="price">Price</label>
+                <input type="number" class="form-control" id="price" name="price" value="{{ product.price }}" required>
+            </div>
+            <!-- Product Description -->
+            <div class="form-group mb-3">
+                <label for="description">Description</label>
+                <textarea class="form-control" id="description" name="description" required>{{ product.description }}</textarea>
+            </div>
 
+            <!-- Dynamic Fields for Poster -->
+            <div {% if product.type != 'poster' %}style="display: none;"{% endif %}>
+                <div class="form-group mb-3">
+                    <label for="character">Character(s)</label>
+                    <input type="text" class="form-control" id="character" name="character" value="{{ product.character }}" {% if product.type == 'poster' %} required {% endif %}>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="hasColour">Has Colour</label>
+                    <input type="checkbox" id="hasColour" name="hasColour" {% if product.hasColour %} checked {% endif %}>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="dimensions">Dimensions</label>
+                    <input type="text" id="dimensions" name="dimensions" value="{{ product.dimensions }}" {% if product.type == 'poster' %} required {% endif %}>
+                </div>
+            </div>
 
-                </main>
+            <!-- Dynamic Fields for Replica -->
+            <div {% if product.type != 'replica' %}style="display: none;"{% endif %}>
+                <div class="form-group mb-3">
+                    <label for="material">Material</label>
+                    <input type="text" class="form-control" id="material" name="material" value="{{ product.material }}" {% if product.type == 'replica' %} required {% endif %}>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="scale">Scale</label>
+                    <input type="text" class="form-control" id="scale" name="scale" value="{{ product.scale }}" {% if product.type == 'replica' %} required {% endif %}>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="isLimited">Is Limited</label>
+                    <input type="checkbox" id="isLimited" name="isLimited" {% if product.isLimited %} checked {% endif %}>
+                </div>
+            </div>
 
+            <!-- Dynamic Fields for Figurine -->
+            <div {% if product.type != 'figurine' %}style="display: none;"{% endif %}>
+                <div class="form-group mb-3">
+                    <label for="gender">Gender</label>
+                    <input type="text" class="form-control" id="gender" name="gender" value="{{ product.gender }}" {% if product.type == 'figurine' %} required {% endif %}>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="moveable">Moveable</label>
+                    <input type="checkbox" id="moveable" name="moveable" {% if product.moveable %} checked {% endif %}>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="isMirror">Is Mirror</label>
+                    <input type="checkbox" id="isMirror" name="isMirror" {% if product.isMirror %} checked {% endif %}>
+                </div>
+            </div>
 
-                <footer class="py-4 bg-light mt-auto">
-                    <div class="container-fluid px-4">
-                        <div class="d-flex align-items-center justify-content-between small">
-                            <div class="text-muted">Copyright &copy; StarTrek FanShop</div>
-                            <div>
-                                <a href="#">Privacy Policy</a>
-                                &middot;
-                                <a href="#">Terms &amp; Conditions</a>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
+            <!-- Submit Button for Main Form -->
+            <button type="submit" class="btn btn-primary" name="save_changes">Submit</button>
+            <button type="submit"  class="btn btn-primary" style="background-color: red" name="delete">Delete Product</button>
+        </form>
+    </div>
+
+    <footer class="py-4 bg-light mt-auto">
+        <div class="container-fluid px-4">
+            <div class="d-flex align-items-center justify-content-between small">
+                <div class="text-muted">Copyright &copy; StarTrek FanShop</div>
+                <div>
+                    <a href="#">Privacy Policy</a>
+                    &middot;
+                    <a href="#">Terms &amp; Conditions</a>
+                </div>
             </div>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-        <script src="js/scripts.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-        <script src="{{ url_for('static', filename='demo/chart-area-demo.js') }}"></script>
-        <script src="{{ url_for('static', filename='demo/chart-bar-demo.js') }}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
-        <script src="js/datatables-simple-demo.js"></script>
-    </body>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="js/scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='demo/chart-area-demo.js') }}"></script>
+    <script src="{{ url_for('static', filename='demo/chart-bar-demo.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+    <script src="js/datatables-simple-demo.js"></script>
+
 </html>

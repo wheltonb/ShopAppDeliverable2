@@ -9,8 +9,8 @@ def inject_sample_products():
     # Sample data for products (excluding image paths, which will be read as BLOBs)
     sample_products = [
         ("Next Gen Phaser", 80, "replica", None, None, None, None, None, None, "aluminum", "1/1", True, "Replica of the phaser blaster used on the set of Star Trek the Next Generation", "static/images/NextGenPhaser.jpg"),
-        ("Original Series Sulu Model", 30, "Figurine", "Male", "No moving pieces", "not from Mirror-verse", None, None, None, None, None, None, "1/6 scale figurine of Lt. Sulu from Star Trek the original series", "static/images/OriginalSeriesSuluFigurine.jpg"),
-        ("Live Long and Prosper tv series Spock Poster", 20, "Poster", None, None, None, "Spock", True, "18x24-inch", None, None, None, "18x24-inch Poster of widely beloved Star Trek character Spock", "static/images/Spock_Poster.png")
+        ("Original Series Sulu Model", 30, "figurine", "Male", "No moving pieces", "not from Mirror-verse", None, None, None, None, None, None, "1/6 scale figurine of Lt. Sulu from Star Trek the original series", "static/images/OriginalSeriesSuluFigurine.jpg"),
+        ("Live Long and Prosper tv series Spock Poster", 20, "poster", None, None, None, "Spock", True, "18x24-inch", None, None, None, "18x24-inch Poster of widely beloved Star Trek character Spock", "static/images/Spock_Poster.png")
     ]
 
     conn = productDAO.conn

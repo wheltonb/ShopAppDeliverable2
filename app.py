@@ -1,4 +1,6 @@
 import base64
+from models import Product as ProductModel
+from models import User
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from services.ProductService import ProductService
 from services.UserService import UserService
@@ -69,7 +71,7 @@ def show_details(productID):
             if session['session_user'] == 'Guest':  # prevents guests from checking out
                 return redirect(url_for('login'))
             else:
-                # retrieving product details
+                # instantiates productService and retrieves by ID
                 productService = ProductService()
                 product = productService.get_product_by_id(productID)
                 productID = request.form['productID']
@@ -95,17 +97,16 @@ def show_details(productID):
 
                 return redirect(url_for('homepage'))
 
-    # Fetch product details
+    # retrieve product details on page render
     productService = ProductService()
     product = productService.get_product_by_id(productID)
-
     # Convert image BLOB to regular image
     if product.image_blob:
         product.image = base64.b64encode(product.image_blob).decode('utf-8')
     else:
         product.image = None
 
-    # Fetch cart details
+    # retrieve cart details from the session
     cart = session.get('cart', [])
     cart_len = len(cart)
 
@@ -232,6 +233,9 @@ def show_cart():
     return render_template('cart.html', cart=cart, cart_len=cart_len, cart_cost=cart_cost, cart_quant=cart_quant)
 
 
+
+
+
 @app.route('/manage_users', methods=['GET', 'POST'])
 def user_management():
     if request.method == 'POST':
@@ -247,11 +251,206 @@ def user_management():
 @app.route('/manage_products', methods=['GET', 'POST'])
 def product_management():
     if request.method == 'POST':
-        pass
+        if 'create_redirect' in request.form:
+            return url_for('product_creation')
     else:
         productService = ProductService()
         products = productService.get_all_products()
+        for product in products:
+            # If the product has an image BLOB, convert it to base64
+            if product.image_blob:
+                product.image = base64.b64encode(product.image_blob).decode('utf-8')
+            else:
+                product.image = None  # Handle case with no image
         return render_template('product_management.html', products=products)
+
+
+
+# handles updates to individual products
+@app.route('/manage_product/<int:productID>', methods=['GET', 'POST'])
+def manage_product(productID):
+    # instantiates productServices
+    productService = ProductService()
+    product = productService.get_product_by_id(productID)
+
+    if request.method == 'POST': # reused logout logic from previous iteration
+        if 'logout' in request.form:
+            session.pop('cart', None)
+            session['session_user'] = 'Guest'
+            session.modified = True
+            return redirect(url_for('homepage'))
+
+        if 'delete' in request.form:
+            productService = ProductService()
+            productService.delete_product(productID)
+            return redirect(url_for('product_management'))
+
+        if 'save_changes' in request.form:
+            if product.type == 'poster':
+                product.character = request.form.get('productName')
+                product.price = request.form.get('price')
+                product.description = request.form.get('description')
+                product.image = product.image_blob
+                product.character = request.form.get('character')
+                product.hasColour = 'hasColour' in request.form
+                product.dimensions = request.form.get('dimensions')
+                product.materials = None
+                product.scale = None
+                product.isLimited = None
+                product.gender = None
+                product.moveable = None
+                product.isMirror = None
+            # sets values for hidden fields and visible fields if form = replica
+            elif product.type == 'replica':
+                product.character = request.form.get('productName')
+                product.price = request.form.get('price')
+                product.description = request.form.get('description')
+                product.image = product.image_blob
+                product.character = None
+                product.hasColour = False
+                product.dimensions = None
+                product.materials = request.form.get('materials')
+                product.scale = request.form.get('scale')
+                product.isLimited = request.form.get('isLimited')
+                product.gender = None
+                product.moveable = None
+                product.isMirror = None
+
+
+            # sets values for hidden fields and visible fields if form = figurine
+            elif product.type == 'figurine':
+                product.character = request.form.get('productName')
+                product.price = request.form.get('price')
+                product.description = request.form.get('description')
+                product.image = product.image_blob
+                product.character = None
+                product.hasColour = None
+                product.dimensions = None
+                product.materials = None
+                product.scale = None
+                product.isLimited = None
+                product.gender = request.form.get('gender')
+                product.moveable = 'moveable' in request.form
+                product.isMirror = 'isMirror' in request.form
+
+            productservice = ProductService()
+            productservice.update_product(product)
+        else:
+            pass
+        # Handle the product type change from the radio buttons since I don't know Javascript well enough to use for dynamic response
+        product_type = request.form.get('productType')
+        if product_type:
+            product.type = product_type # on radio button form submit, modifies product type to allow for form updating
+            # sets values for hidden fields and visible fields if form = poster
+            if product_type == 'poster':
+                product.character = request.form.get('character')
+                product.hasColour = 'hasColour' in request.form
+                product.dimensions = request.form.get('dimensions')
+                product.materials = None
+                product.scale = None
+                product.isLimited = None
+                product.gender = None
+                product.moveable = None
+                product.isMirror = None
+            # sets values for hidden fields and visible fields if form = replica
+            elif product_type == 'replica':
+                product.character = None
+                product.hasColour = False
+                product.dimensions = None
+                product.materials = request.form.get('materials')
+                product.scale = request.form.get('scale')
+                product.isLimited = request.form.get('isLimited')
+                product.gender = None
+                product.moveable = None
+                product.isMirror = None
+            # sets values for hidden fields and visible fields if form = figurine
+            elif product_type == 'figurine':
+                product.character = None
+                product.hasColour = None
+                product.dimensions = None
+                product.materials = None
+                product.scale = None
+                product.isLimited = None
+                product.gender = request.form.get('gender')
+                product.moveable = 'moveable' in request.form
+                product.isMirror = 'isMirror' in request.form
+
+            # If there's an image, handle image conversion
+            if product.image_blob:
+                product.image = base64.b64encode(product.image_blob).decode('utf-8')
+            else:
+                product.image = None
+            productService.update_product(product)
+            return render_template('manage_product.html', product=product)
+
+    if product.image_blob:
+        product.image = base64.b64encode(product.image_blob).decode('utf-8')
+    else:
+        product.image = None
+    return render_template('manage_product.html', product=product)
+
+
+
+@app.route('/product_creation', methods=['GET', 'POST'])
+def product_creation():
+    product = ProductModel.Product("", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+    if request.method == 'POST':
+        if "productType" in request.form:
+            if product.type:
+                if product.type == 'poster':
+                    product.character = request.form.get('character')
+                    product.hasColour = 'hasColour' in request.form
+                    product.dimensions = request.form.get('dimensions')
+                    product.materials = None
+                    product.scale = None
+                    product.isLimited = None
+                    product.gender = None
+                    product.moveable = None
+                    product.isMirror = None
+                # sets values for hidden fields and visible fields if form = replica
+                elif product.type == 'replica':
+                    product.character = None
+                    product.hasColour = False
+                    product.dimensions = None
+                    product.materials = request.form.get('materials')
+                    product.scale = request.form.get('scale')
+                    product.isLimited = request.form.get('isLimited')
+                    product.gender = None
+                    product.moveable = None
+                    product.isMirror = None
+                # sets values for hidden fields and visible fields if form = figurine
+                elif product.type == 'figurine':
+                    product.character = None
+                    product.hasColour = None
+                    product.dimensions = None
+                    product.materials = None
+                    product.scale = None
+                    product.isLimited = None
+                    product.gender = request.form.get('gender')
+                    product.moveable = 'moveable' in request.form
+                    product.isMirror = 'isMirror' in request.form
+
+        if 'save' in request.form:
+            # Handle new product form submission
+            productName = request.form.get('productName')
+            price = request.form.get('price')
+            type = request.form.get('productType')
+            description = request.form.get('description')
+            character = request.form.get('character')
+            hasColour = request.form.get('hasColour')
+            dimensions = request.form.get('dimensions')
+            material = request.form.get('material')
+            scale = request.form.get('scale')
+            isLimited = request.form.get('isLimited')
+            gender = request.form.get('gender')
+            moveable = request.form.get('moveable')
+            isMirror = request.form.get('isMirror')
+            image_blob = request.files.get('image_blob')
+        else:
+            print("error with POST Handling")
+    else:
+        return render_template("create_product.html", product=product)
+
 
 
 if __name__ == '__main__':

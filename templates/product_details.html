@@ -88,7 +88,10 @@
                     {% if product.movable is not none %} movable: {{ product.movable }} {% endif %} </br>
                     {% if product.isMirror is not none %} mirrorverse character: {{ product.isMirror }} {% endif %} </br>
                     {% if product.character is not none %} Character: {{ product.character }} {% endif %} </br>
-                    {% if product.hasColour is not none %} Colour: {{ product.hasColour }} {% endif %} </br>
+                    {% if product.hasColour is not none %}
+                        Colour: {% if product.hasColour %} Has Colour {% else %} Black & White {% endif %} <br>
+                    {% endif %}
+
                     {% if product.dimensions is not none %} Poster Dimensions: {{ product.dimensions }} {% endif %} </br>
                     {% if product.material is not none %} Material: {{ product.material }} {% endif %} </br>
                     {% if product.scale is not none %} Scale: {{ product.scale }} {% endif %} </br>
