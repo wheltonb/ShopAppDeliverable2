@@ -56,22 +56,17 @@ class UserDAO:
         return users
 
 
-
-    # Update a user
     def update_user(self, user):
-        sql = '''
-        UPDATE users
-        SET firstName = ?, lastName = ?, userEmail = ?, userPassword = ?, isManager = ?
-        WHERE userID = ?
-        '''
-        self.cursor.execute(sql, (user.firstName, user.lastName, user.userEmail, user.userPassword, user.isManager, user.userID))
+        sql = '''UPDATE users SET firstName = ?, lastName = ?, userEmail = ?, userPassword = ?, isManager = ? WHERE userID = ?'''
+        self.conn.execute(sql,(user.firstName, user.lastName, user.userEmail, user.userPassword, user.isManager, user.userID))
         self.conn.commit()
         self.conn.close()
 
 
+
     # Delete a user by userID
     def delete_user(self, userID):
-        sql = 'DELETE FROM users WHERE userID = ?'
-        self.cursor.execute(sql, (userID,))
+        sql = '''DELETE FROM users WHERE userID = ?'''
+        self.conn.execute(sql, (userID,))
         self.conn.commit()
         self.conn.close()

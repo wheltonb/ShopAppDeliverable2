@@ -85,9 +85,6 @@ def product_types(product_type):
     return render_template('index_by_type.html', products=products, cart_len=cart_len)
 
 
-
-
-
 @app.route('/product/<int:productID>', methods=['GET', 'POST'])
 def show_details(productID):
     # reusing logout logic
@@ -305,20 +302,6 @@ def show_cart():
 
 
 
-
-
-@app.route('/manage_users', methods=['GET', 'POST'])
-def user_management():
-    if request.method == 'POST':
-        pass
-    else:
-        userService = UserService()
-        users = userService.get_all_users()
-        return render_template('user_management.html', users=users)
-
-
-
-
 @app.route('/manage_products', methods=['GET', 'POST'])
 def product_management():
     if request.method == 'POST':
@@ -520,6 +503,46 @@ def product_creation():
         else:
             flash("Error creating product", "danger")
     return render_template("create_product.html")
+
+
+@app.route('/manage_users', methods=['GET', 'POST'])
+def user_management():
+    userService = UserService()
+    users = userService.get_all_users()
+    return render_template('user_management.html', users=users)
+
+
+@app.route('/manage_user/<int:userID>', methods=['GET', 'POST'])
+def manage_user(userID):
+    userService = UserService()
+    user = userService.get_user_by_id(userID)
+    if request.method == 'POST': # reused logout logic from previous iteration
+        if 'logout' in request.form:
+            session.pop('cart', None)
+            session['session_user'] = 'Guest'
+            session.modified = True
+            return redirect(url_for('homepage'))
+
+        if 'save_changes' in request.form:
+            user.firstName = request.form.get('firstName')
+            user.lastName = request.form.get('lastName')
+            user.userEmail = request.form.get('userEmail')
+            user.userPassword= request.form.get('userPassword')
+            user.isManager = request.form.get('isManager')
+            userService = UserService()
+            userService.update_user(user)
+            return redirect(url_for('user_management'))
+
+        if 'delete' in request.form:
+            userService.delete_user(userID)
+            return redirect(url_for('user_management'))
+
+    else:
+        return render_template('manage_user.html', user=user)
+
+
+
+
 
 
 @app.route('/get_api', methods=['GET'])
