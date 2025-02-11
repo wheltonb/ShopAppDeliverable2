@@ -393,10 +393,13 @@ def manage_product(productID):
 
 @app.route('/product_creation', methods=['GET', 'POST'])
 def product_creation():
+    productService = ProductService()
     product = ProductModel.Product("", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
     if request.method == 'POST':
-        if "productType" in request.form:
-            if product.type:
+        if "edit_type" in request.form:
+            product_type = request.form.get('productType')
+            if product_type:
+                product.type = product_type
                 if product.type == 'poster':
                     product.character = request.form.get('character')
                     product.hasColour = 'hasColour' in request.form
@@ -432,20 +435,23 @@ def product_creation():
 
         if 'save' in request.form:
             # Handle new product form submission
-            productName = request.form.get('productName')
-            price = request.form.get('price')
-            type = request.form.get('productType')
-            description = request.form.get('description')
-            character = request.form.get('character')
-            hasColour = request.form.get('hasColour')
-            dimensions = request.form.get('dimensions')
-            material = request.form.get('material')
-            scale = request.form.get('scale')
-            isLimited = request.form.get('isLimited')
-            gender = request.form.get('gender')
-            moveable = request.form.get('moveable')
-            isMirror = request.form.get('isMirror')
-            image_blob = request.files.get('image_blob')
+            product.productName = request.form.get('productName')
+            product.price = request.form.get('price')
+            product.type = request.form.get('productType')
+            product.description = request.form.get('description')
+            product.character = request.form.get('character')
+            product.hasColour = request.form.get('hasColour')
+            product.dimensions = request.form.get('dimensions')
+            product.material = request.form.get('material')
+            product.scale = request.form.get('scale')
+            product.isLimited = request.form.get('isLimited')
+            product.gender = request.form.get('gender')
+            product.moveable = request.form.get('moveable')
+            product.isMirror = request.form.get('isMirror')
+            image = request.files.get('image')
+            with open(image.name, 'rb') as image_textfile:
+                product.image_blob = image_textfile.read()
+            productService.create_product(product)
         else:
             print("error with POST Handling")
     else:
