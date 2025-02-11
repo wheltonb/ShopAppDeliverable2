@@ -59,3 +59,5 @@ class ProductDAO:
         self.conn.execute(sql, (type,))
         self.conn.commit()
         self.conn.close()
+
+
